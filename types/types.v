@@ -20,5 +20,5 @@ pub type Position = u64
 pub type Angle = byte
 pub type UUID = [2]u64
 
-pub type Optional = Types
+pub type Optional = Types | voidptr
 pub type Array = []Types

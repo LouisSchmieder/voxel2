@@ -5,7 +5,7 @@ import net
 import vnet.io
 import vnet.packet.read
 
-type Packet = read.Handshake | read.StatusRequest
+type Packet = read.Handshake | read.StatusRequest | read.StatusPing
 
 pub enum ConnectionState {
 	handshake
@@ -44,7 +44,7 @@ pub fn (mut pm PacketManager) get_packet() ?Packet {
 	len -= pm.nis.len
 
 	pm.packets++
-	eprintln(pm.state)
+
 	match pm.state {
 		.handshake {
 			match pkd_id {
@@ -52,7 +52,9 @@ pub fn (mut pm PacketManager) get_packet() ?Packet {
 					data := pm.serialize_packet<read.Handshake>(len) ?
 					return data
 				}
-				else {}
+				else {
+					return error('Packet id 0x${pkd_id.hex()} was not found in state ${pm.state}')
+				}
 			}
 		}
 		.status {
@@ -61,12 +63,17 @@ pub fn (mut pm PacketManager) get_packet() ?Packet {
 					data := pm.serialize_packet<read.StatusRequest>(len) ?
 					return data
 				}
-				else {}
+				0x01 {
+					data := pm.serialize_packet<read.StatusPing>(len) ?
+					return data					
+				}
+				else {
+					return error('Packet id 0x${pkd_id.hex()} was not found in state ${pm.state}')
+				}
 			}
 		}
 		.play {}
 	}
-	return error('error')
 }
 
 pub fn (mut pm PacketManager) serialize_packet<T>(len int) ?T {
@@ -115,4 +122,66 @@ pub fn (mut pm PacketManager) serialize_packet<T>(len int) ?T {
 		}
 	}
 	return data
+}
+
+pub fn (mut pm PacketManager) write_packet<T>(packet T) ? {
+	mut pkg_id := byte(0x00)
+	$for attr in T.attributes {
+		if attr.name == 'id' && attr.has_arg && attr.kind == .number {
+			pkg_id = byte(attr.arg.i8())
+		}
+	}
+
+	pm.packets++
+	pm.output_packet<T>(packet, pkg_id) ?
+	pm.nos.flush(pkg_id)
+	pm.nos.write_packet() ?
+}
+
+pub fn (mut pm PacketManager) output_packet<T>(packet T, id byte) ? {
+	$for field in T.fields {
+		$if field.typ is types.Boolean {
+			pm.nos.write_bool(packet.$(field.name))
+		} $else $if field.typ is types.Byte {
+			pm.nos.write_i8(packet.$(field.name))
+		} $else $if field.typ is types.UByte {
+			pm.nos.write_byte(packet.$(field.name))
+		} $else $if field.typ is types.Short {
+			pm.nos.write_i16(packet.$(field.name))
+		} $else $if field.typ is types.UShort {
+			pm.nos.write_u16(packet.$(field.name))
+		} $else $if field.typ is types.Int {
+			pm.nos.write_int(packet.$(field.name))
+		} $else $if field.typ is types.Long {
+			pm.nos.write_i64(packet.$(field.name))
+		} $else $if field.typ is types.Float {
+			pm.nos.write_f32(packet.$(field.name))
+		} $else $if field.typ is types.Double {
+			pm.nos.write_f64(packet.$(field.name))
+		} $else $if field.typ is types.String {
+			pm.nos.write_var_string(packet.$(field.name))
+		} $else $if field.typ is types.Chat {
+			pm.nos.write_var_string(packet.$(field.name))
+		} $else $if field.typ is types.Identifier {
+			pm.nos.write_var_string(packet.$(field.name))
+		} $else $if field.typ is types.VarInt {
+			pm.nos.write_var_int(packet.$(field.name))
+		} $else $if field.typ is types.VarLong {
+			pm.nos.write_var_long(packet.$(field.name))
+		} $else $if field.typ is types.Position {
+			pm.nos.write_u64(packet.$(field.name))
+		} $else $if field.typ is types.Angle {
+			pm.nos.write_byte(packet.$(field.name))
+		} $else $if field.typ is types.UUID {
+			uuid := packet.$(field.name)
+			pm.nos.write_u64(uuid[0])
+			pm.nos.write_u64(uuid[1])
+		} $else $if field.typ is types.Optional {
+			opt := packet.$(field.name)
+			if opt !is types.Types {
+				// write type
+			}
+		} $else $if field.typ is types.Array {
+		}
+	}
 }
