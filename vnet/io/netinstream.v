@@ -67,11 +67,11 @@ pub fn (mut nis NetInStream) read_mc_string() ?string {
 }
 
 pub fn (mut nis NetInStream) read_int() ?int {
-	return int(binary.big_endian_u32(nis.read_bytes(sizeof(int))?))
+	return int(binary.big_endian_u32(nis.read_bytes(sizeof(int)) ?))
 }
 
 pub fn (mut nis NetInStream) read_ints(l u32) ?[]int {
-	bytes := nis.read_bytes(sizeof(int) * l)?
+	bytes := nis.read_bytes(sizeof(int) * l) ?
 	mut ints := []int{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(int))
@@ -82,11 +82,11 @@ pub fn (mut nis NetInStream) read_ints(l u32) ?[]int {
 }
 
 pub fn (mut nis NetInStream) read_i8() ?i8 {
-	return i8(nis.read_byte()?)
+	return i8(nis.read_byte() ?)
 }
 
 pub fn (mut nis NetInStream) read_i8s(l u32) ?[]i8 {
-	bytes := nis.read_bytes(sizeof(i8) * l)?
+	bytes := nis.read_bytes(sizeof(i8) * l) ?
 	mut i8s := []i8{}
 	for i in 0 .. l {
 		i8s << i8(bytes[i])
@@ -95,11 +95,11 @@ pub fn (mut nis NetInStream) read_i8s(l u32) ?[]i8 {
 }
 
 pub fn (mut nis NetInStream) read_i16() ?i16 {
-	return i16(binary.big_endian_u16(nis.read_bytes(sizeof(i16))?))
+	return i16(binary.big_endian_u16(nis.read_bytes(sizeof(i16)) ?))
 }
 
 pub fn (mut nis NetInStream) read_i16s(l u32) ?[]i16 {
-	bytes := nis.read_bytes(sizeof(i16) * l)?
+	bytes := nis.read_bytes(sizeof(i16) * l) ?
 	mut i16s := []i16{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(i16))
@@ -110,12 +110,11 @@ pub fn (mut nis NetInStream) read_i16s(l u32) ?[]i16 {
 }
 
 pub fn (mut nis NetInStream) read_i64() ?i64 {
-	return i64(binary.big_endian_u64(nis.read_bytes(sizeof(i64))?))
-
+	return i64(binary.big_endian_u64(nis.read_bytes(sizeof(i64)) ?))
 }
 
 pub fn (mut nis NetInStream) read_i64s(l u32) ?[]i64 {
-	bytes := nis.read_bytes(sizeof(i64) * l)?
+	bytes := nis.read_bytes(sizeof(i64) * l) ?
 	mut i64s := []i64{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(i64))
@@ -134,65 +133,65 @@ pub fn (mut nis NetInStream) read_byte() ?byte {
 
 pub fn (mut nis NetInStream) read_bytes(l u32) ?[]byte {
 	mut bytes := []byte{len: int(l), cap: int(l)}
-	for i in 0..l {
+	for i in 0 .. l {
 		bytes[i] = nis.read_byte() ?
 	}
 	return bytes
 }
 
 pub fn (mut nis NetInStream) read_u16() ?u16 {
-	return binary.big_endian_u16(nis.read_bytes(sizeof(u16))?)
+	return binary.big_endian_u16(nis.read_bytes(sizeof(u16)) ?)
 }
 
 pub fn (mut nis NetInStream) read_u16s(l u32) ?[]u16 {
-	bytes := nis.read_bytes(sizeof(u16) * l)?
+	bytes := nis.read_bytes(sizeof(u16) * l) ?
 	mut u16s := []u16{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(u16))
 		b := bytes[offs..int(u32(offs) + sizeof(u16))]
 		u16s << binary.big_endian_u16(b)
-
 	}
 	return u16s
 }
 
 pub fn (mut nis NetInStream) read_u32() ?u32 {
-	return binary.big_endian_u32(nis.read_bytes(sizeof(u32))?)
+	return binary.big_endian_u32(nis.read_bytes(sizeof(u32)) ?)
 }
 
 pub fn (mut nis NetInStream) read_u32s(l u32) ?[]u32 {
-	bytes := nis.read_bytes(sizeof(u32) * l)?
+	bytes := nis.read_bytes(sizeof(u32) * l) ?
 	mut u32s := []u32{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(u32))
 		b := bytes[offs..int(u32(offs) + sizeof(u32))]
-		u32s <<  binary.big_endian_u32(b)
+		u32s << binary.big_endian_u32(b)
 	}
 	return u32s
 }
 
 pub fn (mut nis NetInStream) read_u64() ?u64 {
-	return binary.big_endian_u64(nis.read_bytes(sizeof(u64))?)
+	return binary.big_endian_u64(nis.read_bytes(sizeof(u64)) ?)
 }
 
 pub fn (mut nis NetInStream) read_u64s(l u32) ?[]u64 {
-	bytes := nis.read_bytes(sizeof(u64) * l)?
+	bytes := nis.read_bytes(sizeof(u64) * l) ?
 	mut u64s := []u64{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(u64))
 		b := bytes[offs..int(u32(offs) + sizeof(u64))]
-		u64s <<  binary.big_endian_u64(b)
+		u64s << binary.big_endian_u64(b)
 	}
 	return u64s
 }
+
 pub fn (mut nis NetInStream) read_f32() ?f32 {
-	bytes := nis.read_bytes(sizeof(f32))?
+	bytes := nis.read_bytes(sizeof(f32)) ?
 	f := &f32(bytes.data)
 	return *f
 }
 
 pub fn (mut nis NetInStream) read_f32s(l u32) ?[]f32 {
-	bytes := nis.read_bytes(sizeof(f32) * l)?
+	bytes := nis.read_bytes(sizeof(f32) * l) ?
 	mut f32s := []f32{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(f32))
@@ -206,13 +205,13 @@ pub fn (mut nis NetInStream) read_f32s(l u32) ?[]f32 {
 }
 
 pub fn (mut nis NetInStream) read_f64() ?f64 {
-	bytes := nis.read_bytes(sizeof(f64))?
+	bytes := nis.read_bytes(sizeof(f64)) ?
 	f := &f64(bytes.data)
 	return *f
 }
 
 pub fn (mut nis NetInStream) read_f64s(l u32) ?[]f64 {
-	bytes := nis.read_bytes(sizeof(f64) * l)?
+	bytes := nis.read_bytes(sizeof(f64) * l) ?
 	mut f64s := []f64{}
 	for i in 0 .. l {
 		offs := int(u32(i) * sizeof(f64))
@@ -226,7 +225,7 @@ pub fn (mut nis NetInStream) read_f64s(l u32) ?[]f64 {
 }
 
 pub fn (mut nis NetInStream) read_string(l u32) ?string {
-	bytes := nis.read_bytes(l)?
+	bytes := nis.read_bytes(l) ?
 	return unsafe { tos(bytes.data, bytes.len) }
 }
 
@@ -236,5 +235,5 @@ pub fn (mut nis NetInStream) read_bool() ?bool {
 }
 
 pub fn (mut nis NetInStream) skip(l u32) ? {
-	nis.read_bytes(l)?
+	nis.read_bytes(l) ?
 }

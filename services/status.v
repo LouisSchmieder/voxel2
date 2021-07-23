@@ -2,21 +2,21 @@ module services
 
 pub struct ListPing {
 pub mut:
-	version Version
-	players Players
+	version     Version
+	players     Players
 	description Description
-	favicon string
+	favicon     string
 }
 
 pub struct Version {
 pub mut:
-	name string
+	name     string
 	protocol int
 }
 
 pub struct Players {
 pub mut:
-	max int
+	max    int
 	online int
 	sample []PlayerData
 }
@@ -24,7 +24,7 @@ pub mut:
 pub struct PlayerData {
 pub:
 	name string
-	id string
+	id   string
 }
 
 pub struct Description {

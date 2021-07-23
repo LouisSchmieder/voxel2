@@ -1,6 +1,7 @@
 module types
 
-pub type Types = Boolean | Byte | UByte | Short | UShort | Int | Long | Float | Double | String | Chat | Identifier | VarInt | VarLong | Position | Angle
+pub type Types = Angle | Boolean | Byte | Chat | Double | Float | Identifier | Int | Long |
+	Position | Short | String | UByte | UShort | VarInt | VarLong
 
 pub type Boolean = bool
 pub type Byte = i8

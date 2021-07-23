@@ -2,7 +2,6 @@ module main
 
 import vnet.packet
 import vnet.packet.write
-import vnet.packet.read
 import net
 import services
 import json
@@ -22,7 +21,7 @@ fn main() {
 				services.PlayerData{
 					name: 'Test123'
 					id: 'dthgfsdhfdsbfius'
-				}
+				},
 			]
 		}
 		description: services.Description{
@@ -30,21 +29,23 @@ fn main() {
 		}
 	}
 
+	settings := packet.ProtocolSettings{
+		version: 10
+	}
 	for {
 		client := listener.accept() or { panic(err) }
-		mut manager := packet.setup_packet_manager(client, {})
+		mut manager := packet.setup_packet_manager(client, settings)
 		go handle_manager(mut manager, listping)
 	}
 }
 
 fn handle_manager(mut manager packet.PacketManager, list services.ListPing) {
-	mut packet := manager.get_packet() or { panic(err) }
+	handshake := manager.get_packet() or { eprintln(err) }
 	manager.next_status(1)
-	packet = manager.get_packet() or { panic(err) }
-	str := json.encode(list)
+	status_request := manager.get_packet() or { eprintln(err) }
 
-	manager.write_packet<write.StatusResponse>(write.StatusResponse{json: str}) or {
-		panic(err)
-	}
-	
+	str := json.encode(list)
+	manager.write_packet<write.StatusResponse>(write.StatusResponse{ json: str }) or { panic(err) }
+
+	ping := manager.get_packet() or { eprintln(err) }
 }

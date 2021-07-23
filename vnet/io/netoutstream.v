@@ -1,4 +1,3 @@
-
 module io
 
 import net
@@ -6,7 +5,7 @@ import encoding.binary
 
 struct NetOutStream {
 mut:
-	sock &net.TcpConn
+	sock  &net.TcpConn
 	bytes []byte
 }
 
@@ -23,7 +22,7 @@ pub fn (mut nos NetOutStream) empty_buffer() {
 
 pub fn (mut nos NetOutStream) write_var_int(val int) {
 	mut data := val
-	
+
 	for {
 		mut tmp := (data & 0b01111111)
 		data >>= 7
@@ -36,12 +35,11 @@ pub fn (mut nos NetOutStream) write_var_int(val int) {
 			break
 		}
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_var_long(val i64) {
 	mut data := val
-	
+
 	for {
 		mut tmp := (data & 0b01111111)
 		data >>= 7
@@ -111,7 +109,7 @@ pub fn (mut nos NetOutStream) write_i64s(d []i64) {
 		mut tmp := []byte{len: int(sizeof(i64))}
 		binary.big_endian_put_u64(mut tmp, u64(u))
 		nos.bytes << tmp
-	}	
+	}
 }
 
 pub fn (mut nos NetOutStream) write_byte(d byte) {
@@ -134,7 +132,6 @@ pub fn (mut nos NetOutStream) write_u16s(d []u16) {
 		binary.big_endian_put_u16(mut tmp, u)
 		nos.bytes << tmp
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_u32(d u32) {
@@ -144,13 +141,11 @@ pub fn (mut nos NetOutStream) write_u32(d u32) {
 }
 
 pub fn (mut nos NetOutStream) write_u32s(d []u32) {
-	
 	for u in d {
 		mut tmp := []byte{len: int(sizeof(u32))}
 		binary.big_endian_put_u32(mut tmp, u)
 		nos.bytes << tmp
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_u64(d u64) {
@@ -160,20 +155,18 @@ pub fn (mut nos NetOutStream) write_u64(d u64) {
 }
 
 pub fn (mut nos NetOutStream) write_u64s(d []u64) {
-	
 	for u in d {
 		mut tmp := []byte{len: int(sizeof(u64))}
 		binary.big_endian_put_u64(mut tmp, u)
 		nos.bytes << tmp
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_f32(d f32) {
 	pb := unsafe { &byte(&d) }
 	mut bytes := []byte{len: int(sizeof(f32))}
 	unsafe {
-		for i in 0..bytes.len {
+		for i in 0 .. bytes.len {
 			bytes[i] = pb[i]
 		}
 	}
@@ -181,41 +174,36 @@ pub fn (mut nos NetOutStream) write_f32(d f32) {
 }
 
 pub fn (mut nos NetOutStream) write_f32s(d []f32) {
-	
 	for f in d {
 		pb := unsafe { &byte(&f) }
 		unsafe {
-			for i in 0..int(sizeof(f32)) {
+			for i in 0 .. int(sizeof(f32)) {
 				nos.bytes << pb[i]
 			}
 		}
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_f64(d f64) {
 	pb := unsafe { &byte(&d) }
 	mut bytes := []byte{len: int(sizeof(f64))}
 	unsafe {
-		for i in 0..bytes.len {
+		for i in 0 .. bytes.len {
 			bytes[i] = pb[i]
 		}
 	}
 	nos.bytes << bytes
-	
 }
 
 pub fn (mut nos NetOutStream) write_f64s(d []f64) {
-	
 	for f in d {
 		pb := unsafe { &byte(&f) }
 		unsafe {
-			for i in 0..int(sizeof(f64)) {
+			for i in 0 .. int(sizeof(f64)) {
 				nos.bytes << pb[i]
 			}
 		}
 	}
-	
 }
 
 pub fn (mut nos NetOutStream) write_string(d string) {
@@ -243,5 +231,5 @@ pub fn (mut nos NetOutStream) flush(id int) {
 }
 
 pub fn (mut nos NetOutStream) write_packet() ? {
-	nos.sock.write(nos.bytes)?
+	nos.sock.write(nos.bytes) ?
 }

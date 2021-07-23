@@ -5,7 +5,7 @@ import net
 import vnet.io
 import vnet.packet.read
 
-type Packet = read.Handshake | read.StatusRequest | read.StatusPing
+type Packet = read.Handshake | read.StatusPing | read.StatusRequest
 
 pub enum ConnectionState {
 	handshake
@@ -53,7 +53,7 @@ pub fn (mut pm PacketManager) get_packet() ?Packet {
 					return data
 				}
 				else {
-					return error('Packet id 0x${pkd_id.hex()} was not found in state ${pm.state}')
+					return error('Packet id 0x$pkd_id.hex() was not found in state $pm.state')
 				}
 			}
 		}
@@ -65,10 +65,10 @@ pub fn (mut pm PacketManager) get_packet() ?Packet {
 				}
 				0x01 {
 					data := pm.serialize_packet<read.StatusPing>(len) ?
-					return data					
+					return data
 				}
 				else {
-					return error('Packet id 0x${pkd_id.hex()} was not found in state ${pm.state}')
+					return error('Packet id 0x$pkd_id.hex() was not found in state $pm.state')
 				}
 			}
 		}
@@ -131,7 +131,6 @@ pub fn (mut pm PacketManager) write_packet<T>(packet T) ? {
 			pkg_id = byte(attr.arg.i8())
 		}
 	}
-
 	pm.packets++
 	pm.output_packet<T>(packet, pkg_id) ?
 	pm.nos.flush(pkg_id)
